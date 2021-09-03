@@ -1,6 +1,23 @@
-# Create React App
+# Formant Realtime Video Demo
 
-This Formant real-time SDK template repository was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This demo shows how to use the realtime-sdk and a closed source UI sdk from formant to create a realtime video app that can be embedded into Formant.
+
+Quick Run
+
+```
+yarn
+yarn start
+```
+
+To add this as a custom view for developing locally and testing:
+
+1. Login to formant
+2. Go to settings
+3. Go to Views
+4. Add new view
+5. Click on the checkbox for custom view:
+6. Set the URL of your custom view to 
+
 
 ## Available Scripts
 
