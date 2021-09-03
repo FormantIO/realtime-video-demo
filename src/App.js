@@ -4,8 +4,6 @@ import { RtcClient, SignalingPromiseClient } from "@formant/realtime-sdk";
 
 const formantApiUrl = "https://api-dev.formant.io";
 
-// This app is meant to run as a custom web view in Formant
-// with url e.g. http://localhost:3000/?auth={auth}&device={device_id}
 class App extends Component {
   constructor() {
     super();
@@ -48,7 +46,6 @@ class App extends Component {
       signalingClient: new SignalingPromiseClient(formantApiUrl, null, null),
       getToken: () => new URLSearchParams(window.location.search).get("auth"),
       receive: (_peerId, message) => {
-        console.log("hey");
         this.h264BytestreamCanvasDrawer.receiveEncodedFrame(
           message.payload.h264VideoFrame
         );
