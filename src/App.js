@@ -2,12 +2,13 @@ import React, { Component } from "react";
 import "./App.css";
 import { RtcClient, SignalingPromiseClient } from "@formant/realtime-sdk";
 
-const formantApiUrl = "https://api-dev.formant.io";
+const formantApiUrl = "https://api.formant.io";
 
 class App extends Component {
   constructor() {
     super();
     this.deviceId = new URLSearchParams(window.location.search).get("device");
+    this.auth = new URLSearchParams(window.location.search).get("auth");
     this.dataChannel = undefined;
     this.canvas = undefined;
     this.state = {
@@ -44,7 +45,7 @@ class App extends Component {
     // Create an instance of the real-time communication client
     const rtcClient = new RtcClient({
       signalingClient: new SignalingPromiseClient(formantApiUrl, null, null),
-      getToken: () => new URLSearchParams(window.location.search).get("auth"),
+      getToken: () => this.auth,
       receive: (_peerId, message) => {
         this.h264BytestreamCanvasDrawer.receiveEncodedFrame(
           message.payload.h264VideoFrame
@@ -98,11 +99,47 @@ class App extends Component {
       currentMessage: "Connected",
     }));
 
+    const videoStream = await this.getActiveVideoStream();
+
     rtcClient.controlRemoteStream(devicePeerId, {
-      streamName: "Integrated Camera Integrated C - dev.video0",
+      streamName: videoStream,
       enable: true,
       pipeline: "rtc",
     });
+  }
+
+  async getActiveVideoStream() {
+    let response = await fetch(
+      formantApiUrl + "/v1/admin/devices/" + this.deviceId,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + this.auth,
+        },
+      }
+    );
+    response = await response.json();
+
+    let latestVersion = response.desiredConfigurationVersion;
+
+    response = await fetch(
+      formantApiUrl +
+        "/v1/admin/devices/" +
+        this.deviceId +
+        "/configurations/" +
+        latestVersion,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + this.auth,
+        },
+      }
+    );
+    response = await response.json();
+
+    const hardwareStream = response.document.teleop.hardwareStreams[0].name;
+
+    return hardwareStream;
   }
 
   render() {
